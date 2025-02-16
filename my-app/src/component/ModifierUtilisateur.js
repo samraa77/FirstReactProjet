@@ -1,5 +1,3 @@
-// src/components/ModifierUtilisateur.js
-
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Button, notification, Switch } from 'antd';
 import { useNavigate } from 'react-router-dom';
@@ -38,13 +36,36 @@ const ModifierUtilisateur = ({ user, onClose, refreshList }) => {
                 <Form.Item label="Nom" name="nom" rules={[{ required: true }]}>
                     <Input />
                 </Form.Item>
-                <Form.Item label="Âge" name="age" rules={[{ required: true }]}>
-                    <Input type="number" />
+                <Form.Item label="Prénom" name="prenom" rules={[{ required: true }]}>
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Pseudo" name="pseudo" rules={[{ required: true }]}>
+                    <Input />
                 </Form.Item>
                 <Form.Item label="Admin" name="admin" valuePropName="checked">
                     <Switch />
                 </Form.Item>
-                {/* D'autres champs si nécessaire */}
+                <Form.Item label="Email" name="email" rules={[{ required: true, type: 'email' }]}>
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Mot de Passe" name="MotDePasse" rules={[{ required: true }]}>
+                    <Input.Password />
+                </Form.Item>
+                <Form.Item label="Couleur Préférée" name="couleur">
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Devise" name="Devise">
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Pays" name="Pays">
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Avatar" name="avatar">
+                    <Input />
+                </Form.Item>
+                <Form.Item label="Photo" name="photo">
+                    <Input />
+                </Form.Item>
                 <Button type="primary" htmlType="submit">Mettre à jour</Button>
             </Form>
         </Modal>

@@ -1,10 +1,8 @@
-// src/component/FooterSection.js
-
 import React from 'react';
 
-const FooterSection = () => {
-    // Récupération de la couleur depuis localStorage
-    const themeColor = localStorage.getItem('themeColor') || '#333'; // Couleur par défaut
+const FooterSection = ({ userColor }) => {
+    // Utilisation de la couleur fournie par userColor ou fallback à localStorage
+    const themeColor = userColor || localStorage.getItem('themeColor') || '#333'; // Couleur par défaut
 
     return (
         <footer style={{
@@ -14,7 +12,7 @@ const FooterSection = () => {
             textAlign: 'center',
             position: 'relative'
         }}>
-            <p>Pied de page contenu ici © 2023</p>
+            <p>Pied de page contenu ici © 2025</p> {/* Mettez à jour l'année si nécessaire */}
         </footer>
     );
 };

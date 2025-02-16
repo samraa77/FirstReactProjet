@@ -1,5 +1,3 @@
-// src/component/Layout.js
-
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Outlet } from 'react-router-dom';
@@ -9,7 +7,7 @@ import Index from './Index';
 import FooterSection from './FooterSection';
 import { resetForm } from '../store/actions';
 
-const Layout = () => {
+const Layout = ({ userColor }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const user = useSelector((state) => state);
@@ -36,40 +34,40 @@ const Layout = () => {
             display: 'flex',
             flexDirection: 'column',
             height: '100vh',
-            background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 0, 0, 0.3), rgba(0, 0, 0, 0.8))`,
+            background: `radial-gradient(circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(255, 0, 0, 0.3), ${userColor ? userColor : 'rgba(0, 0, 0, 0.8)'})`, // Utilisation de la couleur stockée
         }}>
             <HeaderSection
                 name={`${user.prenom} ${user.nom}`}
                 onLogout={handleLogout}
+                userColor={userColor} // Passer userColor au header
             />
-            <NavigationBar />
+            <NavigationBar userColor={userColor} /> 
             <div style={{
-                display: 'flex', // Utilisation de flexbox
+                display: 'flex',
                 flexGrow: 1,
-                overflow: 'hidden', // Empêche les débordements
+                overflow: 'hidden',
             }}>
                 {/* Index est fixe à gauche */}
                 <div style={{
-                    width: '200px', // Largeur fixe pour Index
-                    backgroundColor: 'light', // Couleur d'arrière-plan pour le menu
-                    position: 'fixed', // Fixée sur le côté gauche
-                    top: '130px', // Ajustez si nécessaire pour tenir compte du Header
-                    bottom: '0', // Fixe jusqu'en bas
+                    width: '200px',
+                    position: 'fixed',
+                    top: '130px',
+                    bottom: '0',
                     padding: '10px',
                 }}>
-                    <Index />
+                    <Index userColor={userColor} />
                 </div>
                 {/* Outlet est flexible à droite */}
                 <div style={{
-                    marginLeft: '200px', // Espace pour le menu
+                    marginLeft: '200px',
                     padding: '20px',
                     flexGrow: 1,
-                    overflowY: 'auto', // Permet le défilement si nécessaire
+                    overflowY: 'auto',
                 }}>
                     <Outlet /> {/* Détails des pages enfants */}
                 </div>
             </div>
-            <FooterSection />
+            <FooterSection userColor={userColor} />
         </div>
     );
 };

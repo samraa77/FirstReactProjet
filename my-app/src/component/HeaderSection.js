@@ -1,35 +1,34 @@
-// src/component/HeaderSection.js
-
 import React from 'react';
-import { useDispatch } from 'react-redux'; // Importer useDispatch pour envoyer des actions
-import { resetForm } from '../store/actions'; // Assurez-vous que cette action existe
+import { useDispatch } from 'react-redux';
+import { resetForm } from '../store/actions';
 import { useNavigate } from 'react-router-dom';
 
-const HeaderSection = ({ name }) => {
-    const dispatch = useDispatch(); // Accès au dispatch pour envoyer des actions
-    const navigate = useNavigate(); // Pour la redirection vers Login
+const HeaderSection = ({ name, userColor }) => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const handleLogout = () => {
-        dispatch(resetForm()); // Réinitialiser le store
-        navigate('/login'); // Rediriger vers la page de connexion
+        dispatch(resetForm());
+        navigate('/login');
     };
-    
-    // Récupération de la couleur thématique depuis localStorage avec une valeur par défaut
-    const themeColor = localStorage.getItem('themeColor') || '#333'; 
-    
+
+    // Prendre userColor comme priorité, sinon utiliser l'ancienne logique
+    const themeColor = userColor || localStorage.getItem('themeColor') || '#333';
+
     return (
         <header style={{
-            backgroundColor: themeColor, // Applique la couleur thème
+            backgroundColor: themeColor,
             color: '#fff',
-            padding: '10px',
+            padding: '10px 20px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            transition: 'background-color 0.3s ease' // Pour une transition douce
+            transition: 'background-color 0.3s ease',
+            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)', // Ombre pour un effet 3D
         }}>
-            {/* Remplace le h1 par un logo depuis le dossier public */}
+            {/* Logo de l'application */}
             <img
-                src={`${process.env.PUBLIC_URL}/logo192.png`} // Chemin vers l'image
+                src={`${process.env.PUBLIC_URL}/logo192.png`}
                 alt="Logo"
                 style={{
                     height: '40px',
@@ -40,17 +39,19 @@ const HeaderSection = ({ name }) => {
             <button
                 onClick={handleLogout}
                 style={{
-                    backgroundColor: 'rgb(121, 23, 23)', // Vous pourriez également faire de cette couleur une variable dynamique
+                    backgroundColor: 'rgb(121, 23, 23)',
                     color: 'white',
                     border: 'none',
-                    padding: '5px 15px',
+                    padding: '8px 20px',
                     cursor: 'pointer',
                     borderRadius: '4px',
-                    transition: 'background-color 0.3s ease', // Pour une transition douce
-                    fontSize: '16px'
+                    fontSize: '16px',
+                    transition: 'background-color 0.3s ease',
+                    outline: 'none', // Retirer l'outline par défaut
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgb(150, 30, 30)'} // Changement de couleur au survol
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgb(121, 23, 23)'} // Rétablissement de la couleur
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgb(150, 30, 30)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgb(121, 23, 23)'}
+                aria-label="Se Déconnecter" // Accessibilité
             >
                 Se Déconnecter
             </button>

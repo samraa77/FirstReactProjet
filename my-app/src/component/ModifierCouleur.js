@@ -1,8 +1,6 @@
-// src/component/ModifierCouleur.js
-
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { notification, Button, Modal, Input } from 'antd';
+import { notification, Button, Modal } from 'antd';
 import { HexColorPicker } from 'react-colorful';
 import { updateColor } from '../store/actions';
 import axios from 'axios';
@@ -10,7 +8,6 @@ import axios from 'axios';
 const ModifierCouleur = () => {
     const dispatch = useDispatch();
     const user = useSelector((state) => state);
-
     const [showColorPicker, setShowColorPicker] = useState(false);
     const [selectedColor, setSelectedColor] = useState('#ffffff');
 
@@ -39,13 +36,15 @@ const ModifierCouleur = () => {
             cancelText: "Non",
             onOk: async () => {
                 try {
-                    const response = await axios.put(`https://6772a68fee76b92dd492f93a.mockapi.io/elh/users/${user.id}`, {
+                    // Mettre à jour la couleur dans l'API
+                    await axios.put(`https://6772a68fee76b92dd492f93a.mockapi.io/elh/users/${user.id}`, {
                         couleur: selectedColor,
                     });
 
                     // Stocker la couleur dans le localStorage
                     localStorage.setItem('themeColor', selectedColor);
-                    // Appliquer la couleur de fond de l'élément `body`
+
+                    // Appliquer la couleur à tout le document
                     document.body.style.backgroundColor = selectedColor;
 
                     // Mettre à jour la couleur dans le store Redux
@@ -85,7 +84,6 @@ const ModifierCouleur = () => {
                 </Button>
             ) : (
                 <>
-                    {/* Conteneur pour centrer le sélecteur de couleur */}
                     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
                         <HexColorPicker
                             color={selectedColor}

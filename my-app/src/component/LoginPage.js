@@ -1,5 +1,3 @@
-// src/component/LoginPage.js
-
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { Link, useNavigate } from 'react-router-dom';
@@ -11,6 +9,7 @@ const LoginPage = () => {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [userColor, setUserColor] = useState('white'); // Valeur par défaut pour la couleur de fond
 
     useEffect(() => {
         const handleMouseMove = (event) => {
@@ -25,7 +24,7 @@ const LoginPage = () => {
 
     const handleSubmit = async (values) => {
         console.log('Données de connexion : ', values);
-
+        
         try {
             const response = await axios.get('https://6772a68fee76b92dd492f93a.mockapi.io/elh/users');
             const users = response.data;
@@ -33,9 +32,14 @@ const LoginPage = () => {
             const user = users.find(user => user.email === values.email && user.MotDePasse === values.MotDePasse);
 
             if (user) {
-                // Met à jour le store avec les données de l'utilisateur connecté
+                // Dispatcher les données de l'utilisateur
                 dispatch(setUser(user));
                 navigate('/layout'); // Redirection vers la page d'accueil (Layout)
+
+                // Récupérer la couleur de l'utilisateur et la stocker
+                const fetchedColor = user.couleur; // Assurez-vous d'obtenir la bonne propriété
+                setUserColor(fetchedColor); // Met à jour la couleur de l'utilisateur
+                localStorage.setItem('userColor', fetchedColor); // Stocke la couleur dans le localStorage
             } else {
                 message.error('Email ou mot de passe incorrect.'); // Message d'erreur
             }
@@ -57,7 +61,7 @@ const LoginPage = () => {
             <div style={{
                 maxWidth: '400px',
                 padding: '20px',
-                backgroundColor: '#cccccc',
+                backgroundColor: userColor, // Utiliser la couleur utilisateur
                 borderRadius: '8px',
                 boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
             }}>

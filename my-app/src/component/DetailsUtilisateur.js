@@ -1,5 +1,3 @@
-// src/components/DetailsUtilisateur.js
-
 import React from 'react';
 import { Modal, Button } from 'antd'; // Assurez-vous d'importer Button ici
 
@@ -8,14 +6,15 @@ const DetailsUtilisateur = ({ user, onClose }) => {
 
     return (
         <Modal
-            title="Détails de l'Utilisateur"
-            open={true} // Utiliser "open" pour contrôler la visibilité
+            title="Détails de l'Utilisateur" // Titre pour le modal
+            open={true} // Ouvre le modal
             footer={[
                 <Button key="cancel" onClick={onClose}>
                     Annuler
                 </Button>
             ]}
-            onCancel={onClose} // Fermez le modal lorsque l'utilisateur clique à l'extérieur
+            closeIcon={null} // Supprime le 'X' en fermant (ajout de cette ligne)
+            onCancel={onClose} // Ferme le modal lorsque l'utilisateur clique à l'extérieur
         >
             <p><strong>ID:</strong> {user.id}</p>
             <p><strong>Nom:</strong> {user.nom}</p>
