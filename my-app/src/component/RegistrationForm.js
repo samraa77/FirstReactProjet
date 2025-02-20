@@ -1,8 +1,7 @@
-// src/RegistrationForm.js
 import React, { useEffect, useState } from 'react';
 import { Form, Input, Button, Switch, Select } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom'; 
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const { Option } = Select;
@@ -10,16 +9,25 @@ const { Option } = Select;
 const RegistrationForm = () => {
     const dispatch = useDispatch();
     const formData = useSelector((state) => state);
-    const navigate = useNavigate(); 
+    const navigate = useNavigate();
+    const auth = useSelector((state) => state.auth);
 
-    // État pour les coordonnées de la souris
+    // Status for mouse coordinates
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-    // Suivre la position de la souris
+    // Check authentication status
+    useEffect(() => {
+        if (auth.isAuthenticated) {
+            navigate('/home'); // Redirect to home if authenticated
+        }
+    }, [auth.isAuthenticated, navigate]);
+
+    // Track mouse position
     useEffect(() => {
         const handleMouseMove = (event) => {
             setMousePosition({ x: event.clientX, y: event.clientY });
         };
+
         window.addEventListener('mousemove', handleMouseMove);
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
@@ -31,18 +39,15 @@ const RegistrationForm = () => {
     };
 
     const handleSubmit = async (values) => {
-        console.log("Données soumises : ", values);
-        
+        console.log("Submitted Data: ", values);
         try {
-            // Envoi des données à l'API
+            // Send data to API
             const response = await axios.post('https://6772a68fee76b92dd492f93a.mockapi.io/elh/users', values);
-            console.log('Utilisateur créé : ', response.data);
-
-            // Rediriger l'utilisateur vers la page de connexion après l'inscription
-            navigate('/login'); // Page de connexion
+            console.log('User created: ', response.data);
+            navigate('/login'); // Redirect to login after registration
         } catch (error) {
-            console.error('Erreur lors de la soumission des données : ', error);
-            // Vous pouvez afficher un message d'erreur à l'utilisateur ici
+            console.error('Error submitting data: ', error);
+            // You can display an error message to the user here
         }
     };
 
@@ -82,8 +87,8 @@ const RegistrationForm = () => {
             justifyContent: 'center',
             alignItems: 'center'
         }}>
-            <Form 
-                onFinish={handleSubmit} 
+            <Form
+                onFinish={handleSubmit}
                 style={{
                     backgroundColor: '#cccccc',
                     padding: '20px',
@@ -95,7 +100,12 @@ const RegistrationForm = () => {
                     maxWidth: '800px',
                 }}
             >
-                <h2 style={{ width: '100%', textAlign: 'center', marginBottom: '20px', color: 'black' }}>Inscription</h2>
+                <h2 style={{
+                    width: '100%',
+                    textAlign: 'center',
+                    marginBottom: '20px',
+                    color: 'black'
+                }}>Inscription</h2>
 
                 <div style={{ flex: '1 1 45%', padding: '10px' }}>
                     <Form.Item label="Nom" name="nom" rules={[{ required: true, message: 'Veuillez entrer votre nom!' }]}>
@@ -145,24 +155,18 @@ const RegistrationForm = () => {
                     </Form.Item>
 
                     <Form.Item label="Avatar" name="avatar" rules={[{ required: true, message: 'Veuillez entrer l\'URL ou importer une image pour votre avatar!' }]}>
-                        <Input 
-                            value={formData.avatar} 
-                            onChange={(e) => handleChange('avatar', e.target.value)} 
-                            placeholder="URL de l'avatar" 
-                        />
+                        <Input value={formData.avatar} onChange={(e) => handleChange('avatar', e.target.value)} placeholder="URL de l'avatar" />
                     </Form.Item>
 
                     <Form.Item label="Photo" name="photo" rules={[{ required: true, message: 'Veuillez entrer l\'URL d\'une image pour votre photo!' }]}>
-                        <Input 
-                            value={formData.photo} 
-                            onChange={(e) => handleChange('photo', e.target.value)} 
-                            placeholder="URL de la photo" 
-                        />
+                        <Input value={formData.photo} onChange={(e) => handleChange('photo', e.target.value)} placeholder="URL de la photo" />
                     </Form.Item>
                 </div>
 
                 <Form.Item style={{ width: '100%' }}>
-                    <Button type="primary" htmlType="submit" style={{ width: '100%', backgroundColor: 'rgb(121, 23, 23)', borderColor: 'rgb(121, 23, 23)' }}>S'inscrire</Button>
+                    <Button type="primary" htmlType="submit" style={{
+                        width: '100%', backgroundColor: 'rgb(121, 23, 23)', borderColor: 'rgb(121, 23, 23)'
+                    }}>S'inscrire</Button>
                 </Form.Item>
 
                 <Form.Item style={{ width: '100%', textAlign: 'center' }}>

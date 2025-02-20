@@ -1,22 +1,21 @@
 import React from 'react';
-import { Table, Typography, Button } from 'antd';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { deleteDemande } from '../store/actions'; // Assurez-vous d'importer l'action pour supprimer la demande
+import { useDispatch, useSelector } from 'react-redux';
+import { cancelDemande } from '../store/actions';
+import { Table, Button, Tag, Typography } from 'antd';
+import { useMediaQuery } from 'react-responsive';
 
 const { Title } = Typography;
 
 const MesDemandes = () => {
-    const navigate = useNavigate();
     const dispatch = useDispatch();
-    const demandes = useSelector((state) => state.demandes);
+    const demandes = useSelector((state) => state.auth.demandes);
+    const isMobile = useMediaQuery({ maxWidth: 768 });
+
+    const handleAnnuler = (id) => {
+        dispatch(cancelDemande(id));
+    };
 
     const columns = [
-        {
-            title: 'Titre',
-            dataIndex: 'titre',
-            key: 'titre',
-        },
         {
             title: 'Description',
             dataIndex: 'description',
@@ -26,26 +25,54 @@ const MesDemandes = () => {
             title: 'Statut',
             dataIndex: 'statut',
             key: 'statut',
+            render: (statut) => {
+                let color = 'blue'; // 'en attente' par défaut
+                if (statut === 'Approuvée') {
+                    color = 'green';
+                } else if (statut === 'Rejetée') {
+                    color = 'red';
+                } else if (statut === 'Annulée') {
+                    color = 'gray';
+                }
+                return (
+                    <Tag color={color}>
+                        {statut}
+                    </Tag>
+                );
+            },
         },
         {
             title: 'Actions',
             key: 'actions',
             render: (text, record) => (
-                <span>
-                    <Button
-                        type="link"
-                        onClick={() => navigate(`/layout/modifier-demande/${record.id}`)}
-                    >
-                        Modifier
-                    </Button>
-                    <Button
-                        type="link"
-                        danger
-                        onClick={() => dispatch(deleteDemande(record.id))} // Action pour supprimer
-                    >
+                record.statut === 'En attente' ? (
+                    <Button type="danger" onClick={() => handleAnnuler(record.id)}>
                         Annuler
                     </Button>
-                </span>
+                ) : null
+            ),
+        },
+    ];
+
+    const mobileColumns = [
+        {
+            title: 'Description',
+            dataIndex: 'description',
+            key: 'description',
+            render: (text, record) => (
+                <div>
+                    <Typography.Text strong>Description:</Typography.Text>
+                    <div>{text}</div>
+                    <Typography.Text strong>Statut:</Typography.Text>
+                    <Tag color={record.statut === 'Approuvée' ? 'green' : record.statut === 'Rejetée' ? 'red' : 'blue'}>
+                        {record.statut}
+                    </Tag>
+                    {record.statut === 'En attente' && (
+                        <Button type="danger" onClick={() => handleAnnuler(record.id)}>
+                            Annuler
+                        </Button>
+                    )}
+                </div>
             ),
         },
     ];
@@ -53,7 +80,15 @@ const MesDemandes = () => {
     return (
         <div style={{ padding: '20px' }}>
             <Title level={2}>Mes Demandes</Title>
-            <Table dataSource={demandes} columns={columns} rowKey="id" />
+            {demandes && demandes.length === 0 ? (
+                <p>Aucune demande enregistrée.</p>
+            ) : (
+                <Table
+                    columns={isMobile ? mobileColumns : columns}
+                    dataSource={demandes}
+                    rowKey="id"
+                />
+            )}
         </div>
     );
 };

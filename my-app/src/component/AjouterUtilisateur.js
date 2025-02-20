@@ -1,5 +1,6 @@
-import { Form, Input, Button, Switch, Select, notification } from 'antd';
+import { Form, Input, Button, Switch, Select } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
+import {  useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const { Option } = Select;
@@ -7,35 +8,40 @@ const { Option } = Select;
 const AjouterUtilisateur = () => {
     const dispatch = useDispatch();
     const formData = useSelector((state) => state);
+    const navigate = useNavigate();
+    const auth = useSelector((state) => state.auth);
+
+    // Status for mouse coordinates
+
+    const isColorBright = (hexColor) => {
+        if (!hexColor) return false;
+        const hex = hexColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        const brightness = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return brightness > 128;
+      };
+    const textColor = isColorBright(auth.user.couleur) ? '#000' : '#fff';
+
 
     const handleChange = (field, value) => {
         dispatch({ type: 'UPDATE_FIELD', payload: { field, value } });
     };
 
     const handleSubmit = async (values) => {
-        console.log("Données soumises : ", values);
-        
-        // Vérifiez si les champs sont vides et affichez une notification d'erreur si nécessaire
-        if (!values.nom || !values.prenom || !values.pseudo || !values.email || 
-            !values.MotDePasse || !values.age || !values.couleur || 
-            !values.Devise || !values.Pays || !values.avatar || !values.photo) {
-            
-            notification.error({ message: 'Veuillez remplir tous les champs obligatoires ! '});
-            return; // Arrêter la fonction si les champs requis ne sont pas remplis
-        }
-        
+        console.log("Submitted Data: ", values);
         try {
+            // Send data to API
             const response = await axios.post('https://6772a68fee76b92dd492f93a.mockapi.io/elh/users', values);
-            console.log('Utilisateur créé : ', response.data);
-            notification.success({ message: 'Utilisateur ajouté avec succès ! '});
-
+            console.log('User created: ', response.data);
+            navigate('/home/liste-utilisateurs'); // Redirect to login after registration
         } catch (error) {
-            console.error('Erreur lors de la soumission des données : ', error);
-            notification.error({ message: 'Erreur lors de l\'ajout de l\'utilisateur.'});
+            console.error('Error submitting data: ', error);
+            // You can display an error message to the user here
         }
     };
 
-    // La règle de mot de passe pour les validations
     const passwordRule = [
         {
             required: true,
@@ -69,12 +75,12 @@ const AjouterUtilisateur = () => {
             height: '100vh',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center',
+            alignItems: 'center'
         }}>
-            <Form 
-                onFinish={handleSubmit} 
+            <Form
+                onFinish={handleSubmit}
                 style={{
-                    backgroundColor: '#cccccc',
+                    backgroundColor: '#ffffff',
                     padding: '20px',
                     borderRadius: '8px',
                     boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
@@ -84,47 +90,50 @@ const AjouterUtilisateur = () => {
                     maxWidth: '800px',
                 }}
             >
-                <h2 style={{ width: '100%', textAlign: 'center', marginBottom: '20px', color: 'black' }}>
-                    Ajouter Utilisateur
-                </h2>
+                <h2 style={{
+                    width: '100%',
+                    textAlign: 'center',
+                    marginBottom: '20px',
+                    color: 'black'
+                }}>Ajouter Utilisateur</h2>
 
                 <div style={{ flex: '1 1 45%', padding: '10px' }}>
                     <Form.Item label="Nom" name="nom" rules={[{ required: true, message: 'Veuillez entrer votre nom!' }]}>
-                        <Input value={formData.nomc} onChange={(e) => handleChange( e.target.value)} />
+                        <Input value={formData.nom} onChange={(e) => handleChange('nom', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Prénom" name="prenom" rules={[{ required: true, message: 'Veuillez entrer votre prénom!' }]}>
-                        <Input value={formData.prenomc} onChange={(e) => handleChange( e.target.value)} />
+                        <Input value={formData.prenom} onChange={(e) => handleChange('prenom', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Pseudo" name="pseudo" rules={[{ required: true, message: 'Veuillez entrer votre pseudo!' }]}>
-                        <Input value={formData.pseudo} onChange={(e) => handleChange(e.target.value)} />
+                        <Input value={formData.pseudo} onChange={(e) => handleChange('pseudo', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Veuillez entrer votre email!' }]}>
-                        <Input type="email" value={formData.email} onChange={(e) => handleChange( e.target.value)} />
+                        <Input type="email" value={formData.email} onChange={(e) => handleChange('email', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Mot de Passe" name="MotDePasse" rules={passwordRule}>
-                        <Input.Password value={formData.MotDePasse} onChange={(e) => handleChange( e.target.value)} />
+                        <Input.Password value={formData.MotDePasse} onChange={(e) => handleChange('MotDePasse', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Âge" name="age" rules={[{ required: true, message: 'Veuillez entrer votre âge!' }]}>
-                        <Input type="number" value={formData.age} onChange={(e) => handleChange( e.target.value)} />
+                        <Input type="number" value={formData.age} onChange={(e) => handleChange('age', e.target.value)} />
                     </Form.Item>
                 </div>
 
                 <div style={{ flex: '1 1 45%', padding: '10px' }}>
                     <Form.Item label="Admin" name="admin" valuePropName="checked">
-                        <Switch checked={formData.admin} onChange={(checked) => handleChange( checked)} />
+                        <Switch checked={formData.admin} onChange={(checked) => handleChange('admin', checked)} />
                     </Form.Item>
 
                     <Form.Item label="Couleur" name="couleur" rules={[{ required: true, message: 'Veuillez entrer votre couleur préférée!' }]}>
-                        <Input value={formData.couleur} onChange={(e) => handleChange( e.target.value)} />
+                        <Input value={formData.couleur} onChange={(e) => handleChange('couleur', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Devise" name="Devise" rules={[{ required: true, message: 'Veuillez sélectionner une devise!' }]}>
-                        <Select value={formData.Devise} onChange={(value) => handleChange( value)}>
+                        <Select value={formData.Devise} onChange={(value) => handleChange('Devise', value)}>
                             <Option value="EUR">EUR</Option>
                             <Option value="USD">USD</Option>
                             <Option value="GBP">GBP</Option>
@@ -132,31 +141,24 @@ const AjouterUtilisateur = () => {
                     </Form.Item>
 
                     <Form.Item label="Pays" name="Pays" rules={[{ required: true, message: 'Veuillez entrer votre pays!' }]}>
-                        <Input value={formData.Pays} onChange={(e) => handleChange( e.target.value)} />
+                        <Input value={formData.Pays} onChange={(e) => handleChange('Pays', e.target.value)} />
                     </Form.Item>
 
                     <Form.Item label="Avatar" name="avatar" rules={[{ required: true, message: 'Veuillez entrer l\'URL ou importer une image pour votre avatar!' }]}>
-                        <Input 
-                            value={formData.avatar} 
-                            onChange={(e) => handleChange( e.target.value)} 
-                            placeholder="URL de l'avatar" 
-                        />
+                        <Input value={formData.avatar} onChange={(e) => handleChange('avatar', e.target.value)} placeholder="URL de l'avatar" />
                     </Form.Item>
 
                     <Form.Item label="Photo" name="photo" rules={[{ required: true, message: 'Veuillez entrer l\'URL d\'une image pour votre photo!' }]}>
-                        <Input 
-                            value={formData.photo} 
-                            onChange={(e) => handleChange( e.target.value)} 
-                            placeholder="URL de la photo" 
-                        />
+                        <Input value={formData.photo} onChange={(e) => handleChange('photo', e.target.value)} placeholder="URL de la photo" />
                     </Form.Item>
                 </div>
 
                 <Form.Item style={{ width: '100%' }}>
-                    <Button type="primary" htmlType="submit" style={{ width: '100%', backgroundColor: 'rgb(121, 23, 23)', borderColor: 'rgb(121, 23, 23)' }}>
-                        Ajouter
-                    </Button>
+                    <Button type="primary" htmlType="submit" style={{
+                        width: '100%', backgroundColor: auth.user.couleur , color :textColor
+                    }}>Ajouter</Button>
                 </Form.Item>
+
             </Form>
         </div>
     );

@@ -1,41 +1,84 @@
-// src/component/VoirMonProfile.js
-
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { Card } from 'antd';
+import { Card, Avatar, Typography, Row, Col } from 'antd';
 
-const VoirMonProfile = () => {
-    const user = useSelector((state) => state);
+const { Title, Text } = Typography;
+
+const VoirMonProfil = () => {
+    const user = useSelector((state) => state.auth.user);
+
+    // Debug log
+    console.log('User data:', user);
+
+    // Check if user exists and is properly loaded
+    if (!user) {
+        return <div style={{ textAlign: 'center', padding: '20px' }}>Veuillez vous connecter pour voir votre profil.</div>;
+    }
+
+    // Default avatar image
+    const defaultAvatar = 'https://via.placeholder.com/120';
 
     return (
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-            <h1>Détails de Mon Profil</h1>
-            {user ? (
-                <Card style={{ width: '100%', maxWidth: '400px', margin: '0 auto', padding: '20px' }}>
-                    <p><strong>ID:</strong> {user.id}</p>
-                    <p><strong>Nom:</strong> {user.nom}</p>
-                    <p><strong>Prénom:</strong> {user.prenom}</p>
-                    <p><strong>Pseudo:</strong> {user.pseudo}</p>
-                    <p><strong>Email:</strong> {user.email}</p>
-                    <p><strong>Âge:</strong> {user.age}</p>
-                    <p><strong>Pays:</strong> {user.Pays}</p>
-                    <p><strong>Devise:</strong> {user.Devise}</p>
-                    <p><strong>Couleur Préférée:</strong> {user.couleur}</p>
-                    <p>
-                        <strong>Avatar:</strong>
-                        {user.avatar ? <img src={user.avatar} alt="Avatar" style={{ width: 50, height: 50 }} /> : "Aucun Avatar"}
-                    </p>
-                    <p>
-                        <strong>Photo:</strong>
-                        {user.photo ? <img src={user.photo} alt="Photo" style={{ width: 100, height: 100 }} /> : "Aucune Photo"}
-                    </p>
-                    <p><strong>Admin:</strong> {user.admin ? "Oui" : "Non"}</p>
-                </Card>
-            ) : (
-                <p>Aucun utilisateur connecté.</p>
-            )}
+        <div style={{ padding: '20px' }}>
+            <Card bordered={false} style={{ textAlign: 'center' }}>
+                <Avatar 
+                    size={120} 
+                    src={user.photo || defaultAvatar}
+                    alt="Profile"
+                    style={{ marginBottom: 16 }}
+                    fallback={defaultAvatar}
+                />
+                <Title level={2}>
+                    {typeof user.prenom === 'string' && typeof user.nom === 'string' 
+                        ? `${user.prenom} ${user.nom}`
+                        : 'Nom non disponible'}
+                </Title>
+                <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+                    {typeof user.pseudo === 'string' ? `@${user.pseudo}` : ''}
+                </Text>
+                
+                <Row gutter={[16, 16]} justify="center">
+                    <Col span={12}>
+                        <Text strong>Email: </Text>
+                        <Text>{typeof user.email === 'string' ? user.email : ''}</Text>
+                    </Col>
+                    <Col span={12}>
+                        <Text strong>Âge: </Text>
+                        <Text>{typeof user.age === 'number' ? `${user.age} ans` : ''}</Text>
+                    </Col>
+                    <Col span={12}>
+                        <Text strong>Admin: </Text>
+                        <Text>{typeof user.admin === 'boolean' ? (user.admin ? 'Oui' : 'Non') : ''}</Text>
+                    </Col>
+                    <Col span={12}>
+                        <Text strong>Pays: </Text>
+                        <Text>{typeof user.Pays === 'string' ? user.Pays : ''}</Text>
+                    </Col>
+                    <Col span={12}>
+                        <Text strong>Devise: </Text>
+                        <Text>{typeof user.Devise === 'string' ? user.Devise : ''}</Text>
+                    </Col>
+                    <Col span={12}>
+                        <Text strong>Couleur préférée: </Text>
+                        {typeof user.couleur === 'string' && (
+                            <Text>
+                                <span style={{ 
+                                    display: 'inline-block', 
+                                    width: '20px', 
+                                    height: '20px', 
+                                    borderRadius: '50%', 
+                                    backgroundColor: user.couleur, 
+                                    marginRight: '8px',
+                                    border: '1px solid #ddd'
+                                }} />
+                                {user.couleur}
+                            </Text>
+                        )}
+                    </Col>
+                </Row>
+            </Card>
         </div>
     );
 };
 
-export default VoirMonProfile;
+export default VoirMonProfil;

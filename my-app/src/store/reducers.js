@@ -1,84 +1,98 @@
-import { SET_USER, UPDATE_FIELD, RESET_FORM, LOGIN_SUCCESS, UPDATE_COLOR ,ADD_DEMANDE , APPROVE_DEMANDE, REJECT_DEMANDE, DELETE_DEMANDE } from './actions';
+const initialState = {  
+    isAuthenticated: false,  
+    user: null,  
+    error: null,  
+    success: null,  
+    demandes: JSON.parse(localStorage.getItem('demandes')) || [], // Charger les demandes depuis localStorage  
+};  
 
-const initialState = {
-    nom: '',
-    prenom: '',
-    pseudo: '',
-    email: '',
-    avatar: '',
-    photo: '',
-    age: '',
-    admin: false,
-    MotDePasse: '',
-    couleur: '',  // Assurez-vous que ceci est cohérent avec vos autres fichiers
-    Devise: '',
-    Pays: '',
-    id: '',
-    demandes: [] // Initialiser l'état demandes ici
 
-};
+const userFromStorage = JSON.parse(localStorage.getItem('user'));  
 
-const formReducer = (state = initialState, action) => {
-    switch (action.type) {
-        case UPDATE_FIELD:
-            return {
-                ...state,
-                [action.payload.field]: action.payload.value
+const authInitialState = {  
+    ...initialState,  
+    isAuthenticated: userFromStorage ? true : false,  
+    user: userFromStorage,  
+
+};  
+
+const authReducer = (state = authInitialState, action) => {  
+    let newDemandes;
+    switch (action.type) {  
+        case 'LOGIN_SUCCESS':  
+            return {  
+                ...state,  
+                isAuthenticated: true,  
+                user: action.payload.user,  
+                error: null,  
+                success: 'Connexion réussie !',  
+            };  
+        case 'LOGIN_FAILURE':  
+            return {  
+                ...state,  
+                isAuthenticated: false,  
+                user: null,  
+                error: action.payload,  
+            };  
+            case 'LOGOUT':  
+            localStorage.removeItem('user'); // Gardez les demandes dans localStorage  
+            return {  
+                ...initialState,  
+                demandes: state.demandes, // Conserver les demandes existantes dans l'état  
             };
-            case ADD_DEMANDE:
+        case 'CHANGE_USER_COLOR':
             return {
-                ...state,
-                demandes: [...state.demandes, action.payload],
-            };
-            case DELETE_DEMANDE:
+              ...state,
+                  user: {
+                       ...state.user,
+                       couleur: action.payload,
+                     },
+            }; 
+            case 'ADD_DEMANDE':
+                newDemandes = [...state.demandes, action.payload];
+                localStorage.setItem('demandes', JSON.stringify(newDemandes)); // Sauvegarder dans localStorage
                 return {
                     ...state,
-                    demandes: state.demandes.filter(demande => demande.id !== action.payload),
+                    demandes: newDemandes,
                 };
-            case APPROVE_DEMANDE:
-                return {
-                    ...state,
-                    demandes: state.demandes.map(demande =>
-                        demande.id === action.payload ? { ...demande, statut: 'Approuvé' } : demande
-                    ),
+            case 'CANCEL_DEMANDE':  
+                // Filtrer pour obtenir une nouvelle liste de demandes sans celle qui a été annulée  
+                newDemandes = state.demandes.filter(demande => demande.id !== action.payload);  
+                localStorage.setItem('demandes', JSON.stringify(newDemandes)); // Sauvegarder dans localStorage  
+                return {  
+                    ...state,  
+                    demandes: newDemandes,  
                 };
-            case REJECT_DEMANDE:
-                return {
-                    ...state,
-                    demandes: state.demandes.map(demande =>
-                        demande.id === action.payload ? { ...demande, statut: 'Rejeté' } : demande
-                    ),
-                };
-        case UPDATE_COLOR:
-            return {
-                ...state,
-                couleur: action.payload // Correction ici (changement de color à couleur)
-            };
+                case 'UPDATE_DEMANDE_STATUS':
+                    newDemandes = state.demandes.map(demande =>
+                        demande.id === action.payload.id ? { ...demande, statut: action.payload.status } : demande
+                    );
+                    localStorage.setItem('demandes', JSON.stringify(newDemandes)); // Sauvegarder dans localStorage
+                    return {
+                        ...state,
+                        demandes: newDemandes,
+                    };
+                case 'APPROVE_DEMANDE':
+                    newDemandes = state.demandes.map(demande =>
+                        demande.id === action.payload ? { ...demande, statut: 'Approuvée' } : demande
+                    );
+                    localStorage.setItem('demandes', JSON.stringify(newDemandes)); // Sauvegarder dans localStorage
+                    return {
+                        ...state,
+                        demandes: newDemandes,
+                    };
+                case 'REJECT_DEMANDE':
+                    newDemandes = state.demandes.map(demande =>
+                        demande.id === action.payload ? { ...demande, statut: 'Rejetée' } : demande
+                    );
+                    localStorage.setItem('demandes', JSON.stringify(newDemandes)); // Sauvegarder dans localStorage
+                    return {
+                        ...state,
+                        demandes: newDemandes,
+                    };
+        default:  
+            return state;  
+    }  
+};  
 
-        case RESET_FORM:
-            return initialState;
-
-        case SET_USER:
-            return {
-                ...state,
-                ...action.payload // Met à jour tous les champs avec les données utilisateur
-            };
-
-        case LOGIN_SUCCESS:
-            return {
-                ...state,
-                ...action.payload, // Met à jour les données de l'utilisateur après la connexion
-            };
-
-        case 'AUTHENTICATE':
-            return {
-                ...state,
-                ...action.payload
-            };
-
-        default:
-            return state;
-    }
-};
-
-export default formReducer;
+export default authReducer;

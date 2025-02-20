@@ -1,27 +1,37 @@
-import React, { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { notification, Button, Modal } from 'antd';
+import React, { useState, useEffect } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { updateColor } from '../store/actions';
+import { changeUserColor } from '../store/actions';
+import { Button, notification, Modal } from 'antd';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 
 const ModifierCouleur = () => {
     const dispatch = useDispatch();
-    const user = useSelector((state) => state);
+    const user = useSelector((state) => state.auth.user);
     const [showColorPicker, setShowColorPicker] = useState(false);
-    const [selectedColor, setSelectedColor] = useState('#ffffff');
+    const [selectedColor, setSelectedColor] = useState(() => {
+        // Initialize from localStorage, if available
+        const storedColor = localStorage.getItem('themeColor');
+        return storedColor || '#ffffff';
+    });
+    const navigate = useNavigate();
 
-    // Charger la couleur depuis localStorage à l'initialisation
+    // useEffect to apply color from localStorage and update Redux
     useEffect(() => {
         const savedColor = localStorage.getItem('themeColor');
         if (savedColor) {
-            setSelectedColor(savedColor); // Définit l'initialisation
-            document.body.style.backgroundColor = savedColor; // Appliquer la couleur de fond
+            document.body.style.backgroundColor = savedColor;
         }
-    }, []);
 
-    const handleColorChange = (color) => {
-        setSelectedColor(color);
+        // Update Redux store if user color is different from local storage
+        if (user && user.couleur && user.couleur !== savedColor) {
+            dispatch(changeUserColor(savedColor));
+        }
+    }, [user]);
+
+    const handleColorChange = (couleur) => {
+        setSelectedColor(couleur);
     };
 
     const handleChangeColorClick = () => {
@@ -48,12 +58,15 @@ const ModifierCouleur = () => {
                     document.body.style.backgroundColor = selectedColor;
 
                     // Mettre à jour la couleur dans le store Redux
-                    dispatch(updateColor(selectedColor));
+                    dispatch(changeUserColor(selectedColor));
 
                     notification.success({
                         message: 'Succès',
                         description: 'La couleur a été mise à jour avec succès !',
                     });
+
+                    // Réinitialiser l'affichage
+                    setShowColorPicker(false);
                 } catch (error) {
                     notification.error({
                         message: 'Erreur',
@@ -64,8 +77,7 @@ const ModifierCouleur = () => {
         });
     };
 
-    // Vérification de l'âge et des droits de l'utilisateur
-    if (user.age < 15 && !user.admin) {
+    if (user && user.age < 15 && !user.admin) {
         return (
             <div style={{ padding: '20px', textAlign: 'center' }}>
                 <h1>Modifier la Couleur</h1>
